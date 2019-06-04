@@ -4,7 +4,7 @@ const sizeField = document.getElementById("preferred_size");
 const imageField = document.getElementById("image-check");
 
 const getID = url => {
-  const regex = /https:\/\/www.flickr.com\/photos\/[\d]+@N00\/([\d]+)\/in\/dateposted-public\//g;
+  const regex = /https:\/\/www.flickr.com\/photos\/.+\/([\d]+)\/.+/g;
   return url.replace(regex, '$1');
 }
 
