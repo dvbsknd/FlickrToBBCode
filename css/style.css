@@ -1,0 +1,23 @@
+body {
+    padding: 10px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+textarea {
+    height: 100px;
+    vertical-align: top;
+    margin: 10px;
+}
+
+input, select {
+    margin: 10px
+}
+
+#source_url, #output {
+    display: block;
+    width: 300px;
+}
+
+img {
+    margin: 10px;
+}
