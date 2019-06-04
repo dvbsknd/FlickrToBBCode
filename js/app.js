@@ -1,17 +1,16 @@
+// Set variables for relevant page elements
 const inputField = document.getElementById("source_url");
 const outputField = document.getElementById("output");
 const sizeField = document.getElementById("preferred_size");
 const imageField = document.getElementById("image-check");
 
+// Use Regex to extract the photo's ID from a Flickr photo page URL
 const getID = url => {
   const regex = /https:\/\/www.flickr.com\/photos\/.+\/([\d]+)\/.+/g;
   return url.replace(regex, '$1');
 }
 
-const getTargetSize = () => {
-  if (sizeField.value) return sizeField.value;
-}
-
+// Get all available image sizes for the photo from the Flickr API as JSON
 const getSizes = async imageID => {
 
   if (!imageID) throw new Error('No ID.');
@@ -24,7 +23,6 @@ const getSizes = async imageID => {
   let output = await fetch(fetchUrl, {mode: 'cors'})
     .then(response => { 
         if (response.ok) {
-            // console.log(response.json());
             return response.json();
         } else {
             throw new Error('Unexpected response.')
@@ -39,6 +37,12 @@ const getSizes = async imageID => {
 
 }
 
+// Retrieve the user's preferred size from their selection
+const getTargetSize = () => {
+  if (sizeField.value) return sizeField.value;
+}
+
+// Get the image URL for the preferred image size from the available sizes
 const getSizeUrl = (imageSizes, targetSize) => {
   if (imageSizes.sizes && targetSize) { 
       const sizes = imageSizes.sizes.size;
@@ -53,6 +57,7 @@ const getSizeUrl = (imageSizes, targetSize) => {
   }
 }
 
+// Display the final image URL as BBCode and as a preview image on the page
 const displayBBUrl = sizeUrl => {
   if (!sizeUrl) throw new Error('No URL provided.');
   imageField.src = sizeUrl;
@@ -60,6 +65,7 @@ const displayBBUrl = sizeUrl => {
   outputField.focus();
 }
 
+// Run the conversion steps once a URL is provided on the page
 const runConversion = async () => {
 
   const url = inputField.value;
@@ -70,6 +76,7 @@ const runConversion = async () => {
 
 }
 
+// Set event listeners on various page elements to trigger conversion and display
 inputField.addEventListener('input', runConversion, false);
 sizeField.addEventListener('input', runConversion, false);
 inputField.addEventListener('focus', (event) => event.target.setSelectionRange(0,event.target.value.length));
