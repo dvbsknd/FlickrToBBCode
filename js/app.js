@@ -6,19 +6,25 @@ const imageField = document.getElementById("image-check");
 
 // Use Regex to extract the photo's ID from a Flickr photo page URL
 const getID = url => {
-  const regex = /https:\/\/www.flickr.com\/photos\/.+\/([\d]+)\/.+/g;
+  const regex = /https:\/\/www.flickr.com\/photos\/.+\/([\d]+).*/g;
   return url.replace(regex, '$1');
 }
 
 // Get all available image sizes for the photo from the Flickr API as JSON
-const getSizes = async imageID => {
+const getData = async (imageID, apiMethod) => {
 
   if (!imageID) throw new Error('No ID.');
 
-  const endpoint = 'https://www.flickr.com/services/rest/?method=flickr.photos.getSizes';
+  const endpoint = 'https://www.flickr.com/services/rest/';
+  const method = `flickr.photos.${apiMethod}`;
   const apiKey = 'dd20bac905fda5be4080b8fb4b7459ff';
   const responseFormat = 'json';
-  const fetchUrl = endpoint + '&api_key=' + apiKey + '&photo_id=' + imageID + '&format=' + responseFormat + '&nojsoncallback=1';
+  const fetchUrl = endpoint 
+    + '?method=' + method 
+    + '&api_key=' + apiKey 
+    + '&photo_id=' + imageID 
+    + '&format=' + responseFormat 
+    + '&nojsoncallback=1';
 
   let output = await fetch(fetchUrl, {mode: 'cors'})
     .then(response => { 
@@ -57,11 +63,16 @@ const getSizeUrl = (imageSizes, targetSize) => {
   }
 }
 
+// Get the description property from the returned JSON and output a string
+const getDescription = data => {
+    return data.photo.description._content || '';
+}
+
 // Display the final image URL as BBCode and as a preview image on the page
-const displayBBUrl = sizeUrl => {
-  if (!sizeUrl) throw new Error('No URL provided.');
-  imageField.src = sizeUrl;
-  outputField.value = `[IMG]${sizeUrl}[/IMG]`;
+const render = (imgSrc, imgCaption) => {
+  if (!imgSrc) throw new Error('No URL provided.');
+  imageField.src = imgSrc;
+  outputField.value = `[IMG]${imgSrc}[/IMG][I]${imgCaption}[/I]`;
   outputField.focus();
 }
 
@@ -71,8 +82,9 @@ const runConversion = async () => {
   const url = inputField.value;
   const id = getID(url);
   const size = getTargetSize();
-  const src = getSizeUrl(await getSizes(id),size);
-  displayBBUrl(src);
+  const src = getSizeUrl(await getData(id, 'getSizes'), size);
+  const caption = getDescription(await getData(id, 'getInfo'));
+  render(src, caption);
 
 }
 
