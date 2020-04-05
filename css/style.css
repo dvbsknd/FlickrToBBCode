@@ -25,7 +25,7 @@ input, select {
     margin: 10px
 }
 
-#source_url, #output {
+#api_key, #source_url, #output {
     display: block;
     width: 300px;
 }

@@ -1,4 +1,5 @@
 // Set variables for relevant page elements
+const apiKeyField = document.getElementById("api_key");
 const inputField = document.getElementById("source_url");
 const outputField = document.getElementById("output");
 const sizeField = document.getElementById("preferred_size");
@@ -11,13 +12,13 @@ const getID = url => {
 }
 
 // Get all available image sizes for the photo from the Flickr API as JSON
-const getData = async (imageID, apiMethod) => {
+const getData = async (imageID, apiMethod, apiKey) => {
 
-  if (!imageID) throw new Error('No ID.');
+  if (!imageID || !apiMethod || !apiKey) throw new Error('Missing parameter.');
 
   const endpoint = 'https://www.flickr.com/services/rest/';
   const method = `flickr.photos.${apiMethod}`;
-  const apiKey = 'dd20bac905fda5be4080b8fb4b7459ff';
+  const key = getApiKey();
   const responseFormat = 'json';
   const fetchUrl = endpoint 
     + '?method=' + method 
@@ -41,6 +42,16 @@ const getData = async (imageID, apiMethod) => {
 
   return output;
 
+}
+
+// Retrieve the user's API Key
+const getApiKey = () => {
+  if (apiKeyField.value) {
+    localStorage.setItem('apiKey', apiKeyField.value);
+  } else {
+    apiKeyField.value = localStorage.getItem('apiKey');
+  }
+  return apiKeyField.value;
 }
 
 // Retrieve the user's preferred size from their selection
@@ -72,7 +83,7 @@ const getDescription = data => {
 const render = (imgSrc, imgCaption) => {
   if (!imgSrc) throw new Error('No URL provided.');
   imageField.src = imgSrc;
-  outputField.value = `[IMG]${imgSrc}[/IMG][I]${imgCaption}[/I]`;
+  outputField.value = `[IMG]${imgSrc}[/IMG]\n[I]${imgCaption}[/I]\n\n`;
   outputField.focus();
 }
 
@@ -82,8 +93,8 @@ const runConversion = async () => {
   const url = inputField.value;
   const id = getID(url);
   const size = getTargetSize();
-  const src = getSizeUrl(await getData(id, 'getSizes'), size);
-  const caption = getDescription(await getData(id, 'getInfo'));
+  const src = getSizeUrl(await getData(id, 'getSizes', getApiKey()), size);
+  const caption = getDescription(await getData(id, 'getInfo', getApiKey()));
   render(src, caption);
 
 }
